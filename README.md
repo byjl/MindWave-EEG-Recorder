@@ -12,5 +12,5 @@ Ensure that the USB dongle is plugged in. Make sure that your headset is recogni
 ![MindWave Manager Screenshot](http://by-jl.com/mindwave-eeg-recorder/readme/mindwave-manager.png)
 ![ThinkGear Connector Screenshot](http://by-jl.com/mindwave-eeg-recorder/readme/mindwave-connector.png)
 Follow the directions on the console program.
-![](http://by-jl.com/mindwave-eeg-recorder/readme/console.png)
-[[http://by-jl.com/mindwave-eeg-recorder/readme/console.png|alt=Console Screenshot]]
+![Console Screenshot](http://by-jl.com/mindwave-eeg-recorder/readme/console.png)
+
