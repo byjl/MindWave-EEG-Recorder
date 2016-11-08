@@ -8,7 +8,7 @@ This program graphs the recorded data as shown below. Throughout the duration of
 
 ![MindWave Headset](http://by-jl.com/mindwave-eeg-recorder/readme/graph.png)
 
-To see a live example of a test graph, [click here.](https://by-jl.com/mindwave-eeg-recorder/example/results.html)
+To see a live example of a test graph, [click here.](http://by-jl.com/mindwave-eeg-recorder/example/results.html)
 
 ##Getting Started
 
