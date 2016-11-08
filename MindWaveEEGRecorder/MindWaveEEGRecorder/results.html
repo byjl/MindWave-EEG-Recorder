@@ -1,0 +1,264 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Results</title>
+</head>
+<body>
+    <h1 id="chart-title"></h1>
+    <canvas id="chart" width="1000" height="500" style="border:1px solid #000000;"></canvas>
+    <div id="comments" style="position:relative;"></div>
+    <br /><br />
+    <div id="params" style="background-color:#E0E0E0;">
+        Graph Height: <input id="height" type="number" name="height" value="500" />px<br />
+        Graph Width: <input id="width" type="number" name="width" value="1000" />px<br />
+        Data Resolution: <input id="resolution" type="number" name="resolution" value="30" /><br />
+        Brain Wave Zoom: <input id="zoom" type="number" name="zoom" value="1" /><br />
+        Time Tics per Data Points: <input id="timetics" type="number" name="timetics" value="3" /><br />
+        Time Labels per Time Tics: <input id="timelabels" type="number" name="timelabels" value="3" /><br /><br />
+
+        <table>
+            <tr valign="bottom">
+                <td>
+                    <strong>Calculated Values</strong>
+                </td>
+                <td>
+                    <strong>Raw Brain Waves</strong>
+                </td>
+            </tr>
+            <tr valign="top">
+                <td id="calcCell">
+                    <input id="PoorSignal" type="checkbox" name="wave" checked /> Poor Signal<br />
+                    <input id="Attention" type="checkbox" name="wave" checked /> Attention<br />
+                    <input id="Meditation" type="checkbox" name="wave" checked /> Meditation<br />
+                    <input id="MentalEffort" type="checkbox" name="wave" checked /> Mental Effort<br />
+                    <input id="TaskFamiliarity" type="checkbox" name="wave" checked /> Task Familiarity<br />
+                </td>
+                <td id="waveCell">
+                    <input id="EegPowerDelta" type="checkbox" name="wave" checked /> Delta<br />
+                    <input id="EegPowerTheta" type="checkbox" name="wave" checked /> Theta<br />
+                    <input id="EegPowerAlpha1" type="checkbox" name="wave" checked /> Alpha1<br />
+                    <input id="EegPowerAlpha2" type="checkbox" name="wave" checked /> Alpha2<br />
+                    <input id="EegPowerBeta1" type="checkbox" name="wave" checked /> Beta1<br />
+                    <input id="EegPowerBeta2" type="checkbox" name="wave" checked /> Beta2<br />
+                    <input id="EegPowerGamma1" type="checkbox" name="wave" checked /> Gamma1<br />
+                    <input id="EegPowerGamma2" type="checkbox" name="wave" checked /> Gamma2<br />
+                </td>
+            </tr>
+            <tr valign="top">
+                <td>
+                    <button id="calcClear" type="button">Uncheck All</button>
+                </td>
+                <td>
+                    <button id="waveClear" type="button">Uncheck All</button>
+                </td>
+            </tr>
+        </table>
+
+
+        <button id="submit" type="button">Draw</button>
+    </div>
+    <iframe id="data" style="display:none;" src="data.txt">
+        Your browser doesn’t support the object tag.
+    </iframe>
+    <iframe id="datacomments" style="display:none;" src="comments.txt">
+        Your browser doesn’t support the object tag.
+    </iframe>
+    <iframe id="datainfo" style="display:none;" src="info.txt">
+        Your browser doesn’t support the object tag.
+    </iframe>
+    <iframe id="datasummary" style="display:none;" src="summary.txt">
+        Your browser doesn’t support the object tag.
+    </iframe>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
+    <script>
+        $(document).ready(function () {
+
+            drawGraph();
+
+            $("#submit").click(function () {
+                drawGraph();
+            });
+
+            var calcChecked = true;
+            var waveChecked = true;
+            $("#calcClear").click(function () {
+                if (calcChecked == true) {
+                    $("#calcCell>input").each(function (index) {
+                        $(this).prop("checked", false);
+                    });
+                    calcChecked = false;
+                    $("#calcClear").text("Check All");
+                }
+                else if (calcChecked == false) {
+                    $("#calcCell>input").each(function (index) {
+                        $(this).prop("checked", true);
+                    });
+                    calcChecked = true;
+                    $("#calcClear").text("Uncheck All");
+                }
+            });
+
+            $("#waveClear").click(function () {
+                if (waveChecked == true) {
+                    $("#waveCell>input").each(function (index) {
+                        $(this).prop("checked", false);
+                    });
+                    waveChecked = false;
+                    $("#waveClear").text("Check All");
+                }
+                else if (waveChecked == false) {
+                    $("#waveCell>input").each(function (index) {
+                        $(this).prop("checked", true);
+                    });
+                    waveChecked = true;
+                    $("#waveClear").text("Uncheck All");
+                }
+            });
+
+            function drawGraph() {
+                var height = $("#height").val();
+                var width = $("#width").val();
+                var secondsToAvg = $("#resolution").val();
+                var zoom = $("#zoom").val();
+                var waves = [];
+                //var waves = ["PoorSignal", "Attention", "Meditation", "MentalEffort", "TaskFamiliarity", "EegPowerDelta", "EegPowerTheta", "EegPowerAlpha1", "EegPowerAlpha2", "EegPowerBeta1", "EegPowerBeta2", "EegPowerGamma1", "EegPowerGamma2"];
+
+                $("#params input[type='checkbox']:checked").each(function () {
+                    var id = $(this).attr("id");
+                    waves.push(id);
+                });
+
+                var waveIndex = { PoorSignal: 1, Attention: 2, Meditation: 3, MentalEffort: 4, TaskFamiliarity: 5, EegPowerDelta: 6, EegPowerTheta: 7, EegPowerAlpha1: 8, EegPowerAlpha2: 9, EegPowerBeta1: 10, EegPowerBeta2: 11, EegPowerGamma1: 12, EegPowerGamma2: 13 };
+                var colors = { PoorSignal: "#00FFFF", Attention: "#FF0000", Meditation: "#0000FF", MentalEffort: "#000000", TaskFamiliarity: "#000000", EegPowerDelta: "#408E2F", EegPowerTheta: "#FAFD00", EegPowerAlpha1: "#FE9800", EegPowerAlpha2: "#E31000", EegPowerBeta1: "#086FA1", EegPowerBeta2: "#C00086", EegPowerGamma1: "#6A0AAA", EegPowerGamma2: "#234A3A" };
+                var ticPoints = $("#timetics").val();
+                var ticLabel = $("#timelabels").val();
+
+                $("#chart").attr("width", width);
+                $("#chart").attr("height", height);
+                $("#comments").empty();
+
+                var graphPosition = $("#chart").position();
+
+                var c = document.getElementById("chart");
+                var ctx = c.getContext("2d");
+                var info = $("#datainfo").contents().text().split("|");
+                $("#chart-title").text(info[0] + " - " + info[1]);
+                var EegPowerMax = info[3];
+                var wavemax = (height / EegPowerMax) * zoom;
+                var rows = $("#data").contents().text().split("\n");
+                var firstRow = rows[0].split(" ");
+                var lastRow = rows[rows.length - 2].split(" ");
+                var startTime = parseInt(firstRow[0]);
+                var endTime = parseInt(lastRow[0]);
+                var duration = endTime - startTime;
+                var ticPointsCounter = 1;
+                var ticLabelCounter = 1;
+                ctx.clearRect(0, 0, width, height);
+
+                $.each(waves, function (i, wave) {
+                    var lastAvgTime = startTime;
+                    var avgCounter = 0;
+                    var avgTotal = 0;
+                    var first = true;
+                    ctx.beginPath();
+                    ctx.strokeStyle = colors[wave];
+                    $.each(rows, function (index, value) {
+                        fields = value.split(" ");
+                        time = parseInt(fields[0]);
+                        curWave = fields[waveIndex[wave]];
+                        if (curWave !== "-") {
+                            if (time - lastAvgTime >= secondsToAvg || index >= (rows.length - 5)) {
+                                avgCounter++;
+                                avgTotal += parseInt(curWave);
+                                var avg = avgTotal / avgCounter;
+                                avgCounter = 0;
+                                avgTotal = 0;
+                                var avgTime = (time + lastAvgTime) / 2;
+                                var xdifference = avgTime - startTime;
+                                var xpercentage = xdifference / duration;
+                                var xposition = xpercentage * width;
+
+                                var yposition;
+                                if (wave.substring(0, 8) == "EegPower") {
+                                    yposition = 500 - (avg * wavemax);
+                                }
+                                else if (wave == "MentalEffort") {
+                                    yposition = height - (avg * (height / 3));
+                                }
+                                else if (wave == "TaskFamiliarity") {
+                                    yposition = height - (avg * (height / -45));
+                                } else {
+                                    yposition = height - (avg * (height / 100));
+                                }
+
+                                if (i == 0) {
+                                    if (ticPointsCounter >= ticPoints) {
+                                        var ticHeight = 20;
+                                        var ticWidth = 1;
+                                        ctx.fillRect(xposition - (ticWidth / 2), height - ticHeight, ticWidth, ticHeight);
+                                        if (ticLabelCounter >= ticLabel) {
+                                            labelTime = (avgTime - startTime);
+                                            labelTime = toHHMMSS(labelTime);
+                                            $("#comments").append("<div style='position:absolute; left: " + xposition + "px; width:auto; z-index:99; background-color:#C0BEBE; cursor:default;'>" + labelTime + "</div>");
+                                            ticLabelCounter = 1;
+                                        } else {
+                                            ticLabelCounter++;
+                                        }
+                                        ticPointsCounter = 1;
+                                    } else {
+                                        ticPointsCounter++;
+                                    }
+                                }
+                                if (first == true) {
+                                    ctx.moveTo(xposition, yposition);
+                                    first = false;
+                                } else {
+                                    ctx.lineTo(xposition, yposition);
+                                    ctx.stroke();
+                                }
+                                lastAvgTime = time;
+                            } else {
+                                avgCounter++;
+                                avgTotal += parseInt(curWave);
+                            }
+                        }
+                    });
+
+                    ctx.closePath();
+                });
+
+
+                var rows = $.trim($("#datacomments").contents().text()).split("\n");
+                $.each(rows, function (index, value) {
+                    fields = value.split("|");
+                    time = fields[0];
+                    comment = fields[1].replace('"', "&quot;");
+
+                    var xdifference = time - startTime;
+                    var xpercentage = xdifference / duration;
+                    var xposition = xpercentage * width;
+                    //ctx.fillRect(xposition,480,5,20);
+                    //$("#comments").append("<div style='position:absolute; left: "+xposition+"px; width:50px;'>"+comment+"</div>");
+                    $("#comments").append("<div style=\"position:absolute; left: " + (xposition + 2) + "px; width:5px; height:30px; background-color:#E0E0E0; z-index:1;\" title=\"" + comment + "\"></div>");
+                });
+            }
+        });
+
+        function toHHMMSS(secs) {
+            var sec_num = parseInt(secs, 10); // don't forget the second param
+            var hours = Math.floor(sec_num / 3600);
+            var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+            var seconds = sec_num - (hours * 3600) - (minutes * 60);
+
+            if (hours < 10) { hours = "0" + hours; }
+            if (minutes < 10) { minutes = "0" + minutes; }
+            if (seconds < 10) { seconds = "0" + seconds; }
+            var time = hours + ':' + minutes + ':' + seconds;
+            return time;
+        }
+    </script>
+</body>
+</html>
