@@ -7,6 +7,7 @@
 </head>
 <body>
     <h1 id="chart-title"></h1>
+	<p id="chart-summary"></p>
     <canvas id="chart" width="1000" height="500" style="border:1px solid #000000;"></canvas>
     <div id="comments" style="position:relative;"></div>
     <br /><br />
@@ -146,7 +147,9 @@
                 var ctx = c.getContext("2d");
                 var info = $("#datainfo").contents().text().split("|");
                 $("#chart-title").text(info[0] + " - " + info[1]);
-                var EegPowerMax = info[3];
+                $("#chart-summary").text(info[2]);
+				
+				var EegPowerMax = info[3];
                 var wavemax = (height / EegPowerMax) * zoom;
                 var rows = $("#data").contents().text().split("\n");
                 var firstRow = rows[0].split(" ");

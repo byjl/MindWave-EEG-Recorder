@@ -1,5 +1,5 @@
 # MindWave-EEG-Recorder
-Records and graphs data from a NeuroSky MindWave EEG headset. Recording sessions can be used to help track your meditation, biohacking, and quantified self related experiments.
+Records and graphs data from a NeuroSky MindWave EEG headset. Recording sessions can be used to help track your meditation, biohacking, and "quantified self" related experiments.
 
 ![MindWave Headset](http://by-jl.com/mindwave-eeg-recorder/readme/neurosky.jpg)
 
@@ -8,7 +8,7 @@ This program graphs the recorded data as shown below. Throughout the duration of
 
 ![MindWave Headset](http://by-jl.com/mindwave-eeg-recorder/readme/graph.png)
 
-To see a live example of a test graph, click here.
+To see a live example of a test graph, [click here.](https://by-jl.com/mindwave-eeg-recorder/example/results.html)
 
 ##Getting Started
 
@@ -24,3 +24,4 @@ Follow the directions on the console program.
 
 ![Console Screenshot](http://by-jl.com/mindwave-eeg-recorder/readme/console.png)
 
+When you are done with your test, type "end" into the Comment prompt. This exits the program and generates the dynamic graph, which is an HTML file located in Tests/YourTestName-YourTestDate/results.html
